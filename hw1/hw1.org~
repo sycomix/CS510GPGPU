@@ -1,0 +1,164 @@
+Henry Cooney
+CS510 Accel. Compu. W/ GPUs, APUs, FPGAs
+
+Notes on installing / compiling first CUDA example program 
+(vector_addition.cu)
+
+
+* CUDA installation - On Linux Lab 
+  
+  First, I checked that the lab computer I used had a CUDA capable GPU:
+  
+  lspci | grep VGA
+
+  This showed a GTX 645 present.
+  
+  I started by installing nVidia CUDA packages using addpkg. There
+  were several available versions: nvidia-cuda-4.1, 5.0.35, and 5.5. I
+  installed v. 5.5.
+
+
+* CUDA installation - On Home Computer
+
+  I decided to install and run CUDA on my home PC as well.
+  
+  First, I checked that I had a CUDA capable GPU:
+
+  $ lspci | grep VGA
+  output: 08:00.0 VGA compatible controller: NVIDIA Corporation GK104 [GeForce GTX 670] (rev a1)
+
+  The GTX 670 is CUDA capable, so I should be OK. It uses the Kepler architecture.
+
+  I followed instructions from Nvidia to install:
+  http://docs.nvidia.com/cuda/cuda-getting-started-guide-for-linux/#axzz3eTxe53cP
+
+  The steps were:
+  download the .deb repo installer for your linux version
+  (for me it was 'cuda-repo-ubuntu1404_7.0-28_amd64.deb') then:
+
+  sudo dpkg -i /path/to/cuda-repo-ubuntu1404_7.0-28_amd64.deb
+  sudo apt-get update
+  sudo apt-get install -f
+  sudo apt-get install cuda 
+
+  This kicked off the cuda installation, which was large (around 2GB).
+
+  There were a few post-install actions:
+  First, set some path variables:
+  (add to .bashrc)
+
+  export PATH=/usr/local/cuda-7.0/bin:$PATH
+  export LD_LIBRARY_PATH=/usr/local/cuda-7.0/lib64:$LD_LIBRARY_PATH 
+
+  As well as some handy actions like verifying the installation and
+  installing example programs (See above link)
+
+  
+
+* CUDA specs
+  
+  Once CUDA was installed, I unpacked the included CUDA examples:
+  
+  cuda-install-samples-7.0.sh <dir>
+  
+  Then, cd into the resulting directory and enter make to compile 
+  all the examples (also a great test to ensure that CUDA is installed
+  properly)
+
+  The examples include a useful program for querying devices. Once 
+  compilation was complete I ran it:
+
+--------------------------------------------------------------------  
+  Output on Lab Computer:
+
+   CUDA Device Query (Runtime API) version (CUDART static linking)
+
+   Detected 1 CUDA Capable device(s)
+
+   Device 0: "GeForce GTX 645"
+  CUDA Driver Version / Runtime Version          6.0 / 5.5
+  CUDA Capability Major/Minor version number:    3.0
+  Total amount of global memory:                 1023 MBytes (1073020928 bytes)
+  ( 3) Multiprocessors, (192) CUDA Cores/MP:     576 CUDA Cores
+  GPU Clock rate:                                824 MHz (0.82 GHz)
+  Memory Clock rate:                             2000 Mhz
+  Memory Bus Width:                              128-bit
+  L2 Cache Size:                                 262144 bytes
+  Maximum Texture Dimension Size (x,y,z)         1D=(65536), 2D=(65536, 65536), 3D=(4096, 4096, 4096)
+  Maximum Layered 1D Texture Size, (num) layers  1D=(16384), 2048 layers
+  Maximum Layered 2D Texture Size, (num) layers  2D=(16384, 16384), 2048 layers
+  Total amount of constant memory:               65536 bytes
+  Total amount of shared memory per block:       49152 bytes
+  Total number of registers available per block: 65536
+  Warp size:                                     32
+  Maximum number of threads per multiprocessor:  2048
+  Maximum number of threads per block:           1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+  Max dimension size of a grid size    (x,y,z): (2147483647, 65535, 65535)
+  Maximum memory pitch:                          2147483647 bytes
+  Texture alignment:                             512 bytes
+  Concurrent copy and kernel execution:          Yes with 1 copy engine(s)
+  Run time limit on kernels:                     Yes
+  Integrated GPU sharing Host Memory:            No
+  Support host page-locked memory mapping:       Yes
+  Alignment requirement for Surfaces:            Yes
+  Device has ECC support:                        Disabled
+  Device supports Unified Addressing (UVA):      Yes
+  Device PCI Bus ID / PCI location ID:           1 / 0
+  Compute Mode:
+     < Default (multiple host threads can use ::cudaSetDevice() with device simultaneously) >
+
+     deviceQuery, CUDA Driver = CUDART, CUDA Driver Version = 6.0, CUDA Runtime Version = 5.5, NumDevs = 1, Device0 = GeForce GTX 645
+     Result = PASS
+--------------------------------------------------------------------  
+  I anticipate the following information will be most important:
+  Device name: GTX 645
+  Architecture: Kepler (from Nvidia web site)
+  CUDA driver/runtime version: 6.0/5.5
+  CUDA capability: 3.0
+  Total global memory: 1023 Mb
+  Total CUDA cores: 576
+  Number of Multiprocessors: 3
+  Cores / Multiprocessor: 192
+  Shared memory per block: 49152 b
+  Max. threads per block: 1024
+  Max. threads per multiprocessor: 2048
+  Warp size: 32
+
+
+* Results of Running vector_addition.cu
+  
+  After compiling (nvcc vector_addition.cu) I obtained the following
+  results: 
+
+  The CPU's answer: 5 7 9 11 13 
+  The GPU's answer: 5 7 9 11 13 
+
+  Looks good. 
+
+  To experiment with CUDA, I decided to modify vector_addition.cu to do the following:
+  - Prompt user to input a vector length
+  - Generate two random vectors of this length
+  - Add them on CPU and GPU
+  - Warn the user if results do not agree
+  - Output the time the computation takes on CPU and GPU.
+
+  I used this to observe speed differences beetween the CPU and GPU. Here's a table
+  of my results:
+
+  | Vector Length | CPU Time (s) | GPU Time (s) | Ratio (CPU time / GPU time) |
+  | 100           | 0.000001     | 0.000642     | 0.001558                    |
+  | 1000          | 0.000004     | 0.000621     | 0.006441                    |
+  | 10000         | 0.000037     | 0.000633     | 0.058452                    |
+  | 100000        | 0.000338     | 0.001078     | 0.313544                    |
+  | 1000000       | 0.003059     | 0.003636     | 0.841309                    |
+  | 10000000      | 0.027678     | 0.022259     | 1.243452                    |
+
+  The GPU was slower than the CPU until vector length became very long, which is 
+  not surprising -- every time the add_vectors_device() function is called, memory
+  must be allocated and transfered to the GPU, which represents considerable
+  overhead time. As the vector length becomes longer, this overhead time becomes 
+  less significant, and the GPU performs better. However, to get consistently good
+  performance, I suspect you would need to write a more clever kernel...
+
+  
