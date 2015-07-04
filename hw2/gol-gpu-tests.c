@@ -9,7 +9,7 @@
 
 #include "gol.h"
 
-int test_gol(int timesteps, int width, int height) {
+int test_gol(int timesteps, int height, int width) {
   // Tests the GPU GOL computation against the known good
   // CPU computation. Compares final results after timesteps iterations.
   // width and height are the dimensions of the GOL matrix.
@@ -67,5 +67,19 @@ void assertEqual(int thing1, int thing2, char* message) {
       printf("Message: %s \n", message);
     
     exit(1);
+  }
+}
+
+
+void printMatrix(int* mat, int height, int width) {
+  // Print the matrix mat.
+
+  int i, ii;
+  
+  for(i=0; i<height; ++i) {
+    for(ii=0; ii<width; ++ii) {
+      printf("%d", mat[i*width + ii]);
+    }
+    printf("\n");
   }
 }

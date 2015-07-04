@@ -42,7 +42,9 @@ void add_vectors_dev(int *result, int *a, int *b, int n) {
     cudaMalloc((void **) &result_dev, sizeof(int) * n);
 
     // Step 2: Copy the input vectors to the device
-    cudaMemcpy(a_dev, a, sizeof(int) * n, cudaMemcpyHostToDevice);
+    cudaError_t err = cudaMemcpy(a_dev, a, sizeof(int) * n, cudaMemcpyHostToDevice);
+    if (err != cudaSuccess)
+      printf("ERROR!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     cudaMemcpy(b_dev, b, sizeof(int) * n, cudaMemcpyHostToDevice);
 
     // Step 3: Invoke the kernel

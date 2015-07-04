@@ -12,6 +12,8 @@ const int offsets[8][2] = {{-1, 1},{0, 1},{1, 1},
                            {-1,-1},{0,-1},{1,-1}};
 
 
+
+
 void fill_board(int *board) {
     int i;
     for (i=0; i<WIDTH*HEIGHT; i++)
