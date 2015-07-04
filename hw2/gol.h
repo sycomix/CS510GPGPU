@@ -15,10 +15,6 @@
 #define WIDTH 800
 #define HEIGHT 600
 
-// The two boards 
-int current[WIDTH * HEIGHT];
-int next[WIDTH * HEIGHT];
-
 
 // Function prototypes 
 
@@ -26,11 +22,14 @@ int main();
 void fill_board(int* board);
 void step();
 void animate();
-int test_gol(int timesteps, int width, int heigh);
+int* getCPUCurrent();
+int* getCPUNext();
+int test_gol(int timesteps, int width, int height);
 void copy_array(int* dest, int* src, int n);
 int are_arrays_equal(int* a, int* b, int n);
 void assertEqual(int thing1, int thing2, char* message);
 int* gpu_compute(int* initial, int height, int width, int timesteps);
 void printCudaError(cudaError_t err);
 void printMatrix(int* mat, int height, int width);
-
+int divideRoundUp(int a, int b);
+__global__ void conway_kernel(int* current_dev, int* next_dev);

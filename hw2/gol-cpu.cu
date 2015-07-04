@@ -12,7 +12,8 @@ const int offsets[8][2] = {{-1, 1},{0, 1},{1, 1},
                            {-1,-1},{0,-1},{1,-1}};
 
 
-
+int current[HEIGHT*WIDTH];
+int next[HEIGHT*WIDTH];
 
 void fill_board(int *board) {
     int i;
@@ -104,4 +105,16 @@ void animate() {
         // Copy the next state, that step() just wrote into, to current state
         memcpy(current, next, sizeof(int) * WIDTH * HEIGHT);
     }
+}
+
+
+int* getCPUCurrent() {
+  // Returns current (a global variable to this file...)
+  return current;
+}
+
+
+int* getCPUNext() {
+  // Returns next (a global variable to this file...)
+  return next;
 }

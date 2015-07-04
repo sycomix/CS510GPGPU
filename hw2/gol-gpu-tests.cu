@@ -6,7 +6,7 @@
 */
 
 
-
+//#include "gol-cpu.cu"
 #include "gol.h"
 
 int test_gol(int timesteps, int height, int width) {
@@ -23,9 +23,9 @@ int test_gol(int timesteps, int height, int width) {
 
 
   // Compute CPU result:
-  fill_board(current);
-  copy_array(gpu_initial, current, n);
-  assertEqual(are_arrays_equal(current, gpu_initial, n), 1, "Testing array copy");
+  fill_board(getCPUCurrent());
+  copy_array(gpu_initial, getCPUCurrent(), n);
+  assertEqual(are_arrays_equal(getCPUCurrent(), gpu_initial, n), 1, "Testing array copy");
   
   int* result = gpu_compute(gpu_initial, height, width, timesteps);
   

@@ -7,16 +7,13 @@
 */
 
 
-//#include "gol-cpu.cu"
-//#include "gol-gpu-tests.cu"
 #include "gol.h"
-
 
 int main() {
   
   test_gol(1, HEIGHT, WIDTH);
   //  fill_board
-  // gpu_compute(current, HEIGHT, WIDTH, 1);
+  //gpu_compute(current, HEIGHT, WIDTH, 1);
   return 0;
 }
 
@@ -47,20 +44,27 @@ int* gpu_compute(int* initial, int height, int width, int timesteps) {
   printCudaError(cudaMemcpy(current_dev, tester, sizeof(int)*n, cudaMemcpyHostToDevice));
   
   // Establish dimms - these are for GTX 645
-  //dim3 dimBlock(1,1,1);
-  //dim3 dimBlock(tw, tw, 1);
-  //dim3 dimGrid((width/tw) + 1, (height/tw) + 1, 1);
 
-  //  printf("Block dims: %d * %d * %d", dimBlock.x, dimBlock.y, dimBlock.z);
+  dim3 dimBlock(tw, tw, 1);
+  dim3 dimGrid(divideRoundUp(width, tw), divideRoundUp(height, tw), 1);
+
+  printf("Matrix size (width x height): %d x %d\n", width, height);
+  printf("Block dims (x, y, z): %d x %d x %d\n", dimBlock.x, dimBlock.y, dimBlock.z);
+  printf("Grid dims (x, y, z): %d x %d x %d\n", dimGrid.x, dimGrid.y, dimGrid.z);
   
   
-  
+  //  conway_kernel<<<dim3(1,1,1), dim3(1,1,1)>>>(current_dev, next_dev);
    
   
   return NULL;
 }
 
 
+__global__ 
+void conway_kernel(int* current_dev, int* next_dev) {
+
+  return;
+}
 
 void printCudaError(cudaError_t err) {
   // Checks the value of input error. If it does not
@@ -74,3 +78,8 @@ void printCudaError(cudaError_t err) {
   
 }
 
+
+int divideRoundUp(int a, int b) {
+  // Divides a by b, but rounds the result up instead of down.
+  return (a+(b-1)) / b;
+}
