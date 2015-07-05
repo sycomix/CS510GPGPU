@@ -27,45 +27,52 @@ int* gpu_compute(int* initial, int height, int width, int timesteps) {
   int n = width * height;
   int* result = (int*) malloc(sizeof(int) * n);
   int* current_dev,* next_dev;
-  int tw = 32; // Tile width -- 32 will mean 1024 threads/block.
-  // This is the maximum t/blk for the GTX 645
-  //int blockThreads = tw*tw;
-  int tester[n];
-  int i;
-  for(i=0; i < n; ++i)
-    tester[i] = 0;
+
+
+  //  int tester[n];
+  //int i;
+  //for(i=0; i < n; ++i)
+  // tester[i] = 0;
   
   // Memory transfer
   printCudaError(cudaMalloc((void**) &current_dev, sizeof(int)*n));
   printCudaError(cudaMalloc((void**) &next_dev, sizeof(int)*n));
-  //  printMatrix(tester, height, width);
   
-  cudaThreadSynchronize();
-  printCudaError(cudaMemcpy(current_dev, tester, sizeof(int)*n, cudaMemcpyHostToDevice));
+  cudaThreadSynchronize(); // is this necessary? 
+  printCudaError(cudaMemcpy(current_dev, initial, sizeof(int)*n, cudaMemcpyHostToDevice));
   
   // Establish dimms - these are for GTX 645
 
-  dim3 dimBlock(tw, tw, 1);
-  dim3 dimGrid(divideRoundUp(width, tw), divideRoundUp(height, tw), 1);
+  dim3 dimBlock(TW, TW, 1);
+  dim3 dimGrid(divideRoundUp(width, ETW), divideRoundUp(height, ETW), 1);
 
   printf("Matrix size (width x height): %d x %d\n", width, height);
   printf("Block dims (x, y, z): %d x %d x %d\n", dimBlock.x, dimBlock.y, dimBlock.z);
   printf("Grid dims (x, y, z): %d x %d x %d\n", dimGrid.x, dimGrid.y, dimGrid.z);
   
   printf("Starting kernel... \n");
-  conway_step_kernel<<<dimGrid, dimBlock>>>(current_dev, next_dev, height, width, tw);
+  conway_step_kernel<<<dimGrid, dimBlock>>>(current_dev, next_dev, height, width);
+
   printf("Kernel done. \n");
-  return NULL;
+
+  // Copy memory back and free GPU mem
+  printCudaError(cudaMemcpy(result, next_dev, sizeof(int)*n, cudaMemcpyDeviceToHost));
+  cudaFree(current_dev);
+  cudaFree(next_dev);
+
+  return result;
+
 }
 
 
 __global__ 
-void conway_step_kernel(int* current_dev, int* next_dev, int height, int widh, int tw) {
+void conway_step_kernel(int* current_dev, int* next_dev, 
+			int height, int width) {
   // Advances the game of life one timestep.
   // current_dev is the initial matrix, it is not modified. next_dev 
   // the next timestep (the result)
   
-  __shared__ int dsm[tw][tw]; // Device Shared Memory
+  __shared__ int dsm[TW][TW]; // Device Shared Memory
   
   // Each thread is responsbile for a. fetching one item
   // from global memory and b. writing one item to output matrix.
@@ -75,14 +82,22 @@ void conway_step_kernel(int* current_dev, int* next_dev, int height, int widh, i
   int tx = threadIdx.x;
   int ty = threadIdx.y;
 
-  int row = by*tw + ty;
-  int col = bx*tw + tx;
+  // Each output pixel requires knowledge of neighboring pixels.
+  // Thus, each tile has 'egde pixels' which are loaded into shared mem
+  // but not written to. Values must be shifted by one to compensate for this
+
+  int row = by*ETW + ty - 1;
+  int col = bx*ETW + tx - 1;
 
   dsm[ty][tx] = current_dev[row*width + col];
-  if(bx < 1 && by < 1)
-    printf("tx: ty: Loaded: %d\n",  )
 
+  __syncthreads();
   
+  if (row >= 0 && row < height && col >= 0 && col < width) {
+    // This pixel is not an edge pixel, so write it.
+    next_dev[row*width + col] = dsm[ty][tx];
+  }
+ 
   return;
 }
 

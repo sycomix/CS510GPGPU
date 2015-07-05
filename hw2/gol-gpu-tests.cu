@@ -28,6 +28,16 @@ int test_gol(int timesteps, int height, int width) {
   assertEqual(are_arrays_equal(getCPUCurrent(), gpu_initial, n), 1, "Testing array copy");
   
   int* result = gpu_compute(gpu_initial, height, width, timesteps);
+  // assertEqual(are_arrays_equal(gpu_initial, result, n), 1, "Kernel that does nothing should return same array.");
+
+  printf("Initial: \n");
+  printMatrix(gpu_initial, 5, 5);
+
+  printf("Result: \n");
+  printMatrix(result, 5, 5);
+
+  assertArraysEqual(gpu_initial, result, height, width);
+
   
   return 0;
 }
@@ -56,18 +66,38 @@ int are_arrays_equal(int* a, int* b, int n) {
 }
 
 
-void assertEqual(int thing1, int thing2, char* message) {
+int assertEqual(int thing1, int thing2, char* message) {
   // Asserts whether thing1 and thing2 are equal. If they are not,
-  // outputs message and exits the program.
-  // If you don't want to include a message, just make message nullx
+  // outputs message and returns 0 (if they are equal, returns 1.)
+  // If you don't want to include a message, just make message null
 
   if(thing1 != thing2) {
     printf("ERROR: %d does not equal %d \n", thing1, thing2);
     if(message)
       printf("Message: %s \n", message);
     
-    exit(1);
+    //  exit(1);
+    return 0;
   }
+  return 1;
+}
+
+int assertArraysEqual(int* arr1, int* arr2, int height, int width) {
+  // Tests whether two arrays are equal. 
+  // If they are not, prints a warning message and the row/col 
+  // where the first issue was found.
+  // Returns 1 if they are equal, else returns 0.
+
+  int i, ii;
+
+  for (i=0; i<height; ++i)
+    for(ii=0; ii<width; ++ii){
+      if (arr1[i*width + ii] != arr2[i*width+ii]) {
+	printf("ERROR: Arrays do not match at [%d][%d]\n", ii, i);
+	return 0;
+      }
+    }
+  return 1;
 }
 
 

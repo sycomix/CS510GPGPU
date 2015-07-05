@@ -15,6 +15,13 @@
 #define WIDTH 800
 #define HEIGHT 600
 
+#define TW 32 // Tile Width
+#define MASK_WIDTH 1 // Each pixel must know about other pixels up to 1
+// step away.
+#define ETW 30 // The "effective tile width". This is how many pixels
+// are actually written by each tile (the edge pixels are loaded into shared
+// memory but not written to the result matrix.)
+
 
 // Function prototypes 
 
@@ -27,9 +34,11 @@ int* getCPUNext();
 int test_gol(int timesteps, int width, int height);
 void copy_array(int* dest, int* src, int n);
 int are_arrays_equal(int* a, int* b, int n);
-void assertEqual(int thing1, int thing2, char* message);
+int assertEqual(int thing1, int thing2, char* message);
+int assertArraysEqual(int* arr1, int* arr2, int height, int width);
 int* gpu_compute(int* initial, int height, int width, int timesteps);
 void printCudaError(cudaError_t err);
 void printMatrix(int* mat, int height, int width);
 int divideRoundUp(int a, int b);
-__global__ void conway_step_kernel(int* current_dev, int* next_dev, int height, int width, int tw);
+__global__ void conway_step_kernel(int* current_dev, int* next_dev, 
+				   int height, int width);
