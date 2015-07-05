@@ -52,17 +52,37 @@ int* gpu_compute(int* initial, int height, int width, int timesteps) {
   printf("Block dims (x, y, z): %d x %d x %d\n", dimBlock.x, dimBlock.y, dimBlock.z);
   printf("Grid dims (x, y, z): %d x %d x %d\n", dimGrid.x, dimGrid.y, dimGrid.z);
   
-  
-  //  conway_kernel<<<dim3(1,1,1), dim3(1,1,1)>>>(current_dev, next_dev);
-   
-  
+  printf("Starting kernel... \n");
+  conway_step_kernel<<<dimGrid, dimBlock>>>(current_dev, next_dev, height, width, tw);
+  printf("Kernel done. \n");
   return NULL;
 }
 
 
 __global__ 
-void conway_kernel(int* current_dev, int* next_dev) {
+void conway_step_kernel(int* current_dev, int* next_dev, int height, int widh, int tw) {
+  // Advances the game of life one timestep.
+  // current_dev is the initial matrix, it is not modified. next_dev 
+  // the next timestep (the result)
+  
+  __shared__ int dsm[tw][tw]; // Device Shared Memory
+  
+  // Each thread is responsbile for a. fetching one item
+  // from global memory and b. writing one item to output matrix.
 
+  int bx = blockIdx.x;
+  int by = blockIdx.y;
+  int tx = threadIdx.x;
+  int ty = threadIdx.y;
+
+  int row = by*tw + ty;
+  int col = bx*tw + tx;
+
+  dsm[ty][tx] = current_dev[row*width + col];
+  if(bx < 1 && by < 1)
+    printf("tx: ty: Loaded: %d\n",  )
+
+  
   return;
 }
 

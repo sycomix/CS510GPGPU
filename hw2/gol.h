@@ -32,4 +32,4 @@ int* gpu_compute(int* initial, int height, int width, int timesteps);
 void printCudaError(cudaError_t err);
 void printMatrix(int* mat, int height, int width);
 int divideRoundUp(int a, int b);
-__global__ void conway_kernel(int* current_dev, int* next_dev);
+__global__ void conway_step_kernel(int* current_dev, int* next_dev, int height, int width, int tw);
