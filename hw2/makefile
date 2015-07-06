@@ -3,6 +3,8 @@ all: 	gol
 
 gol: 	gol-cpu.cu gol-gpu.cu gol-gpu-tests.cu
 	nvcc -arch compute_20 -o gol gol-gpu.cu gol-gpu-tests.cu gol-cpu.cu -lX11	
+	#nvcc -o gol gol-gpu.cu gol-gpu-tests.cu gol-cpu.cu -lX11	
+
 # gol:	gol.h gol-cpu.o gol-gpu.o gol-gpu-tests.o
 # 	nvcc -o gol gol-cpu.o gol-gpu.o gol-gpu-tests.o -lX11
 

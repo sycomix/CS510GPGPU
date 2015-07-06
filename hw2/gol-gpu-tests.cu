@@ -42,7 +42,7 @@ int test_gol(int timesteps, int height, int width) {
 
 
   assertArraysEqual(getCPUNext(), result, height, width);
-
+  assertArraysEqual(getCPUCurrent(), gpu_initial, height, width);
   
   return 0;
 }

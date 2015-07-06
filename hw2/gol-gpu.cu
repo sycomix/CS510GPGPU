@@ -51,6 +51,7 @@ int* gpu_compute(int* initial, int height, int width, int timesteps) {
   printf("Grid dims (x, y, z): %d x %d x %d\n", dimGrid.x, dimGrid.y, dimGrid.z);
   
   printf("Starting kernel... \n");
+
   conway_step_kernel<<<dimGrid, dimBlock>>>(current_dev, next_dev, height, width);
 
   printf("Kernel done. \n");
@@ -63,9 +64,10 @@ int* gpu_compute(int* initial, int height, int width, int timesteps) {
   
   // Copy memory back and free GPU mem
   printCudaError(cudaMemcpy(result, next_dev, sizeof(int)*n, cudaMemcpyDeviceToHost));
+
   printCudaError(cudaFree(current_dev));
   printCudaError(cudaFree(next_dev));
-
+  
   return result;
 }
 
@@ -87,57 +89,74 @@ void conway_step_kernel(int* current_dev, int* next_dev,
   int tx = threadIdx.x;
   int ty = threadIdx.y;
   int i, ii;
+  int num_neighbors = 0;
+  int next;
+  int this_pixel;
+  
 
   // Each output pixel requires knowledge of neighboring pixels.
   // Thus, each tile has 'egde pixels' which are loaded into shared mem
   // but not written to. Values must be shifted by one to compensate for this
-  // Use a modulus to 'wrap around' grid edges
-  int row = (by*ETW + ty - 1);
-  int col = (bx*ETW + tx - 1);
-  int this_pixel = current_dev[row%height*width + col%width];
+  // conditional expressions handle wraparound
+  // Mod arithmetic implements wraparound
   
+  int row = (by*ETW + ty + 599) % height;
+  int col = (bx*ETW + tx + 799) % width;
+  
+  this_pixel = current_dev[row*width + col];
   dsm[ty][tx] = this_pixel;
+
 
   __syncthreads();
   
   if (row >= 0 && row < height && col >= 0 && col < width 
-      && tx > 1 && tx < 30 && ty > 1 && ty < 30) {
+      && tx > 0 && tx < 31 && ty > 0 && ty < 31) {
     // This pixel is not an edge pixel, so figure out its value
     // in the next frame, and write it.
     
     // num_neighbors is the sum of all the neighboring cells. Since
     // the loop will pass through this pixel, I negate this pixels value.
     // Thus, this pixel does not contribute to the overall sum.
-    int num_neighbors = -this_pixel; 
+    num_neighbors = -this_pixel; 
 
     for(i=-1; i<2; ++i) {
 	for(ii=-1; ii<2; ++ii) {
 	  num_neighbors += dsm[ty+i][tx+ii];
-	  if(bx == 0 && by == 0 && tx == 3 && ty == 3) 
-	    printf("%d", dsm[ty+i][tx+ii]);
+	  if(bx == 0 && by == 0 && tx == 2 && ty == 2) 
+	    printf("%d,%d ", dsm[ty+i][tx+ii], num_neighbors);
 	}
-	if(bx == 0 && by == 0 && tx == 3 && ty == 3) 
-	  printf("\n");
+	if(bx == 0 && by == 0 && tx == 2 && ty == 2) 
+	  printf("\n");	
     }
 
-
-    int next;
+    next = 0;
     if(num_neighbors == 2 || num_neighbors == 3)
       next = 1;
-    else if(this_pixel && num_neighbors == 3)
+    if(this_pixel && num_neighbors == 3)
       next = 1;
-    else
-      next = 0;
     
     /*
     next_dev[row*width + col] = (((num_neighbors==2 || num_neighbors==3) \
 				 || (num_neighbors==3 && this_pixel==1)) ? \
 				 1 : 0); */
-    next = 0;
+    //    if(bx == 0 && by == 0 && tx == 3 && ty == 3) 
+    //printf("Writing to next_dev... %d \n", next);
+	
     next_dev[row*width + col] = next;
   }
- 
-  return;
+  /*
+  if (row >= 0 && row < height && col >= 0 && col < width 
+      && tx > 0 && tx < 31 && ty > 0 && ty < 31) {
+    
+    next_dev[row*width + col] = dsm[ty][tx];
+    }*/
+
+  // This is a sanity check -- if there are pixels not covered by
+  // tiles, they will be set to a very visible value of two. Otherwise,
+  // garbage memory on the GPU may obscure errors.
+  //else if (row >=0 && row < height && col >= 0 && col < width)
+  //next_dev[row*width + col] = 2;
+    
 }
 
 void printCudaError(cudaError_t err) {
