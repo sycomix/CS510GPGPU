@@ -20,31 +20,34 @@ int test_gol(int timesteps, int height, int width) {
   printf("test_gol launched at %d timesteps \n", timesteps);
   int gpu_initial[width*height];
   int n = width*height;
+  int i;
 
 
   // Compute CPU result:
   fill_board(getCPUCurrent());
-  step(); // now next has the next board...
-  copy_array(gpu_initial, getCPUCurrent(), n);
-  assertEqual(are_arrays_equal(getCPUCurrent(), gpu_initial, n), 1, "Testing array copy");
+  copy_array(gpu_initial, getCPUCurrent(), n); 
+
+  for(i=0; i<timesteps; ++i) {
+    step();
+    updateCPUState();
+  }
   
   int* result = gpu_compute(gpu_initial, height, width, timesteps);
-  // assertEqual(are_arrays_equal(gpu_initial, result, n), 1, "Kernel that does nothing should return same array.");
 
-  printf("Initial: \n");
+  printf("Initial (partial): \n");
   printMatrixWindow(gpu_initial, HEIGHT, WIDTH, 10, 10);
 
-  printf("Result: \n");
+  printf("GPU Result (partial): \n");
   printMatrixWindow(result, HEIGHT, WIDTH, 10, 10);
 
-  printf("CPU: \n");
+  printf("CPU result (partial): \n");
   printMatrixWindow(getCPUNext(), HEIGHT, WIDTH, 10, 10);
 
+  int testResult = assertArraysEqual(getCPUNext(), result, height, width);
+  free(result);
+  return testResult;
+  //assertArraysEqual(getCPUCurrent(), gpu_initial, height, width));
 
-  assertArraysEqual(getCPUNext(), result, height, width);
-  assertArraysEqual(getCPUCurrent(), gpu_initial, height, width);
-  
-  return 0;
 }
 
 

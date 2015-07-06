@@ -7,6 +7,7 @@
 #include <stdlib.h> // for rand
 #include <string.h> // for memcpy
 #include <stdio.h> // for printf
+#include <time.h> // for setting rand seed
 #include <X11/Xlib.h> // for the graphics
 #include <cuda.h>
 #include <driver_types.h> // for cudaError_t and other CUDA types
@@ -31,6 +32,7 @@ void step();
 void animate();
 int* getCPUCurrent();
 int* getCPUNext();
+void updateCPUState();
 int test_gol(int timesteps, int width, int height);
 void copy_array(int* dest, int* src, int n);
 int are_arrays_equal(int* a, int* b, int n);
@@ -41,6 +43,7 @@ void printCudaError(cudaError_t err);
 void printMatrix(int* mat, int height, int width);
 void printMatrixWindow(int* mat, int height, int width, int rows, int cols);
 int divideRoundUp(int a, int b);
+void animate_gpu();
 __global__ void conway_step_kernel(int* current_dev, int* next_dev, 
 				   int height, int width);
-__global__ void zeroMemory(int* ptr);
+__global__ void setGPUMemory(int* ptr, int val);

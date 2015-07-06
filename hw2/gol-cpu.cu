@@ -118,3 +118,10 @@ int* getCPUNext() {
   // Returns next (a global variable to this file...)
   return next;
 }
+
+
+void updateCPUState() {
+  // Copies the contents of next into current. This must be called
+  // between each step.
+  memcpy(current, next, sizeof(int) * WIDTH * HEIGHT);
+}
