@@ -109,11 +109,13 @@ int main(void) {
     
     start = clock();
     add_vectors_host(rand_host_result, rand_a, rand_b, l);
+
     stop = clock();
     cpu_time = (double) (stop-start)/CLOCKS_PER_SEC;
 
     start = clock();
     add_vectors_dev(rand_device_result, rand_a, rand_b, l);
+
     stop = clock();
     gpu_time = (double) (stop-start)/CLOCKS_PER_SEC;
 
@@ -132,6 +134,9 @@ int main(void) {
     
     free(rand_a);
     free(rand_b);
+    free(rand_device_result);
+    free(rand_host_result);
+    
     return 0;
 }
 
