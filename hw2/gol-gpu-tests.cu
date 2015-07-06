@@ -24,6 +24,7 @@ int test_gol(int timesteps, int height, int width) {
 
   // Compute CPU result:
   fill_board(getCPUCurrent());
+  step(); // now next has the next board...
   copy_array(gpu_initial, getCPUCurrent(), n);
   assertEqual(are_arrays_equal(getCPUCurrent(), gpu_initial, n), 1, "Testing array copy");
   
@@ -36,7 +37,11 @@ int test_gol(int timesteps, int height, int width) {
   printf("Result: \n");
   printMatrix(result, 5, 5);
 
-  assertArraysEqual(gpu_initial, result, height, width);
+  printf("CPU: \n");
+  printMatrix(getCPUNext(), 5, 5);
+
+
+  assertArraysEqual(getCPUNext(), result, height, width);
 
   
   return 0;
