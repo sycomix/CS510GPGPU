@@ -32,13 +32,13 @@ int test_gol(int timesteps, int height, int width) {
   // assertEqual(are_arrays_equal(gpu_initial, result, n), 1, "Kernel that does nothing should return same array.");
 
   printf("Initial: \n");
-  printMatrix(gpu_initial, 5, 5);
+  printMatrixWindow(gpu_initial, HEIGHT, WIDTH, 10, 10);
 
   printf("Result: \n");
-  printMatrix(result, 5, 5);
+  printMatrixWindow(result, HEIGHT, WIDTH, 10, 10);
 
   printf("CPU: \n");
-  printMatrix(getCPUNext(), 5, 5);
+  printMatrixWindow(getCPUNext(), HEIGHT, WIDTH, 10, 10);
 
 
   assertArraysEqual(getCPUNext(), result, height, width);
@@ -113,6 +113,21 @@ void printMatrix(int* mat, int height, int width) {
   
   for(i=0; i<height; ++i) {
     for(ii=0; ii<width; ++ii) {
+      printf("%d", mat[i*width + ii]);
+    }
+    printf("\n");
+  }
+}
+
+
+void printMatrixWindow(int* mat, int height, int width, int rows, int cols){
+  // Prints a submatrix ('window') of the matrix mat.
+  // Prints the submatrix in the upper left corner of mats, with 
+  // dimension rows x cols.
+  
+  int i, ii;
+  for(i = 0; i < rows; ++i) {
+    for(ii=0; ii < cols; ++ii) {
       printf("%d", mat[i*width + ii]);
     }
     printf("\n");

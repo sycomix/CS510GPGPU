@@ -39,6 +39,8 @@ int assertArraysEqual(int* arr1, int* arr2, int height, int width);
 int* gpu_compute(int* initial, int height, int width, int timesteps);
 void printCudaError(cudaError_t err);
 void printMatrix(int* mat, int height, int width);
+void printMatrixWindow(int* mat, int height, int width, int rows, int cols);
 int divideRoundUp(int a, int b);
 __global__ void conway_step_kernel(int* current_dev, int* next_dev, 
 				   int height, int width);
+__global__ void zeroMemory(int* ptr);
