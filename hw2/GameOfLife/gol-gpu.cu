@@ -94,8 +94,8 @@ void animate_gpu() {
 	  n++;
 	}
       }
-      free(result);
     }
+    free(result);
     XDrawPoints(display, win, gc, points, n, CoordModeOrigin);
     XFlush(display);
   }
@@ -108,7 +108,7 @@ int* gpu_compute(int* initial, int height, int width, int timesteps) {
   // matrix (it is not modified.) The resulting matrix after timesteps
   // iterations is returned.
 
-  printf("Launching GPU computation for %d timesteps... \n", timesteps);
+  //printf("Launching GPU computation for %d timesteps... \n", timesteps);
   int n = width * height;
   int* result = (int*) malloc(sizeof(int) * n);
   int* current_dev,* next_dev;
@@ -126,11 +126,11 @@ int* gpu_compute(int* initial, int height, int width, int timesteps) {
   dim3 dimBlock(TW, TW, 1);
   dim3 dimGrid(divideRoundUp(width, ETW), divideRoundUp(height, ETW), 1);
 
-  printf("Matrix size (width x height): %d x %d\n", width, height);
-  printf("Block dims (x, y, z): %d x %d x %d\n", dimBlock.x, dimBlock.y, dimBlock.z);
-  printf("Grid dims (x, y, z): %d x %d x %d\n", dimGrid.x, dimGrid.y, dimGrid.z);
+  //printf("Matrix size (width x height): %d x %d\n", width, height);
+  //printf("Block dims (x, y, z): %d x %d x %d\n", dimBlock.x, dimBlock.y, dimBlock.z);
+  //printf("Grid dims (x, y, z): %d x %d x %d\n", dimGrid.x, dimGrid.y, dimGrid.z);
   
-  printf("Starting kernel... \n");
+  //printf("Starting kernel... \n");
 
   // For testing - set GPU memory to 2. If any pixel get missed it should be
   // very visible
@@ -150,8 +150,8 @@ int* gpu_compute(int* initial, int height, int width, int timesteps) {
     ++steps_done;
   }
 
-  printf("Kernel done. \n");
-  cudaDeviceSynchronize(); // Necessary??
+  //  printf("Kernel done. \n");
+  //cudaDeviceSynchronize(); // Necessary??
   // Check for errors from the kernel:
   if(cudaGetLastError() != cudaSuccess) {
     printf("*** ERROR IN KERNEL *** \n");
