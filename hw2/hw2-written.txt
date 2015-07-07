@@ -7,6 +7,9 @@ INSTRUCTIONS:
 	(Game of Life) is in the GameOfLife directory.
 
 	To compile either program: just use the included makefile.
+	
+	To run Crossover Point: ./vector_addition_timed
+	To run Game of Life: ./gol
 
 
 PART A:
@@ -63,12 +66,10 @@ PART B:
     graphics. In order to render each frame, data must be copied back to main
     memory. Thus, while my code is capable of keeping memory on the GPU between
     timesteps, it can't do this if you want to actually display each frame.
-    I'm looking into methods for displaying data directly from the GPU,
-    which would make the program very fast. If it's not too much work,	
-    I may try to implement this.
-	
+    It would be possible to display data directly from the GPU using OpenGL,
+    by binding the array to an OpenGL texture. This might require substantially
+    reworking the code, to output the Game of Life board in an OpenGL texture
+    format.
 
-	
-       
 
   
