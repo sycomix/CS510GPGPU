@@ -1,0 +1,32 @@
+Henry Cooney
+Instructions / Writeup for HW2:
+
+INSTRUCTIONS:
+	
+	Part A (Crossover Point) is in the CrossoverPoint directory. Part B
+	(Game of Life) is in the GameOfLife directory.
+
+	To compile either program: just use the included makefile.
+
+
+PART A:
+
+     Last week, I timed the results of vector_addition.cu, so I didn't 
+     need to make many changes to find the crossover point. On the linux 
+     lab machines, GPU performance begins to overtake CPU performance
+     at a vector length of around 2-3 million. Below is a table of
+     my results: 
+
+     
+     | Vector Length | CPU Time (s) | GPU Time (s) | Ratio (CPU time / GPU time) |
+     | 100           | 0.000001     | 0.000642     | 0.001558                    |
+     | 1000          | 0.000004     | 0.000621     | 0.006441                    |
+     | 10000         | 0.000037     | 0.000633     | 0.058452                    |
+     | 100000        | 0.000338     | 0.001078     | 0.313544                    |
+     | 1000000       | 0.003059     | 0.003636     | 0.841309                    |
+     | 10000000      | 0.027678     | 0.022259     | 1.243452                    |
+
+     
+     Clearly, 
+
+  
